@@ -22,8 +22,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import com.example.android.guesstheword.screens.score.ScoreFragment
+import com.example.android.guesstheword.screens.score.ScoreFragmentDirections
+import com.example.android.guesstheword.screens.title.TitleFragmentDirections
+import kotlinx.android.synthetic.main.score_fragment.*
 
 /**
  * Fragment where the game is played
@@ -31,15 +39,17 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
 class GameFragment : Fragment() {
 
     // The current word
-    private var word = ""
+//    private var word = ""
+//
+//    // The current score
+//    private var score = 0
+//
+//    // The list of words - the front of the list is the next word to guess
+//    private lateinit var wordList: MutableList<String>
 
-    // The current score
-    private var score = 0
-
-    // The list of words - the front of the list is the next word to guess
-    private lateinit var wordList: MutableList<String>
-
+    //필요한 data는 모두 viewModel에서 다룬다.
     private lateinit var binding: GameFragmentBinding
+    private lateinit var gameViewModel: GameViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -52,11 +62,35 @@ class GameFragment : Fragment() {
                 false
         )
 
-        resetList()
-        nextWord()
+        // 바인딩 생성 후 뷰모델 생성
+        // 뷰 모델 생성 시 ViewModelProvider() 로 생성해야 뷰 모델이 재생성 되지 않는다.
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+//
+//        resetList()
+//        nextWord()
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
+        binding.correctButton.setOnClickListener {
+//            onCorrect()
+            gameViewModel.onCorrect()
+            updateScoreText()
+            updateWordText()
+        }
+        binding.skipButton.setOnClickListener {
+            gameViewModel.onSkip()
+            updateScoreText()
+            updateWordText()
+        }
+
+        binding.endGameButton.setOnClickListener {
+            // 인텐트 action 보내듯이 값 보낼 때 셋팅 해주면된다.
+
+            val action = GameFragmentDirections.actionGameToScore()
+            action.score = gameViewModel.score
+
+            NavHostFragment.findNavController(this).navigate(action)
+            // = findNavController().navigate(GameFragmentDirections.actionTitleToGame())
+        }
+
         updateScoreText()
         updateWordText()
         return binding.root
@@ -66,65 +100,65 @@ class GameFragment : Fragment() {
     /**
      * Resets the list of words and randomizes the order
      */
-    private fun resetList() {
-        wordList = mutableListOf(
-                "queen",
-                "hospital",
-                "basketball",
-                "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
-        )
-        wordList.shuffle()
-    }
+//    private fun resetList() {
+//        wordList = mutableListOf(
+//                "queen",
+//                "hospital",
+//                "basketball",
+//                "cat",
+//                "change",
+//                "snail",
+//                "soup",
+//                "calendar",
+//                "sad",
+//                "desk",
+//                "guitar",
+//                "home",
+//                "railway",
+//                "zebra",
+//                "jelly",
+//                "car",
+//                "crow",
+//                "trade",
+//                "bag",
+//                "roll",
+//                "bubble"
+//        )
+//        wordList.shuffle()
+//    }
 
     /** Methods for buttons presses **/
 
     private fun onSkip() {
-        score--
-        nextWord()
+//        score--
+//        nextWord()
     }
 
     private fun onCorrect() {
-        score++
-        nextWord()
+//        score++
+//        nextWord()
     }
 
     /**
      * Moves to the next word in the list
      */
-    private fun nextWord() {
-        if (!wordList.isEmpty()) {
-            //Select and remove a word from the list
-            word = wordList.removeAt(0)
-        }
-        updateWordText()
-        updateScoreText()
-    }
+//    private fun nextWord() {
+//        if (!wordList.isEmpty()) {
+//            //Select and remove a word from the list
+//            word = wordList.removeAt(0)
+//        }
+//        updateWordText()
+//        updateScoreText()
+//    }
 
 
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        binding.wordText.text = word
+        binding.wordText.text = gameViewModel.word
     }
 
     private fun updateScoreText() {
-        binding.scoreText.text = score.toString()
+        binding.scoreText.text = gameViewModel.score.toString()
     }
 }
