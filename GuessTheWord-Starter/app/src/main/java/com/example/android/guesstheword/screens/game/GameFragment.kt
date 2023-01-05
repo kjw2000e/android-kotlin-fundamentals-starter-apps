@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.navigation.fragment.NavHostFragment
@@ -65,6 +66,13 @@ class GameFragment : Fragment() {
         // 바인딩 생성 후 뷰모델 생성
         // 뷰 모델 생성 시 ViewModelProvider() 로 생성해야 뷰 모델이 재생성 되지 않는다.
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        gameViewModel.word.observe(
+            viewLifecycleOwner,
+            Observer { word -> binding.wordText.text = word })
+        gameViewModel.score.observe(
+            viewLifecycleOwner,
+            Observer { score -> binding.scoreText.text = score.toString() })
+
 //
 //        resetList()
 //        nextWord()
@@ -72,20 +80,21 @@ class GameFragment : Fragment() {
         binding.correctButton.setOnClickListener {
 //            onCorrect()
             gameViewModel.onCorrect()
-            updateScoreText()
-            updateWordText()
+//            updateScoreText()
+//            updateWordText()
         }
         binding.skipButton.setOnClickListener {
             gameViewModel.onSkip()
-            updateScoreText()
-            updateWordText()
+//            updateScoreText()
+//            updateWordText()
         }
 
         binding.endGameButton.setOnClickListener {
             // 인텐트 action 보내듯이 값 보낼 때 셋팅 해주면된다.
 
             val action = GameFragmentDirections.actionGameToScore()
-            action.score = gameViewModel.score
+//            action.score = gameViewModel.score
+            action.score = gameViewModel.score.value?: 0  // gameViewModel.score.value이 null 이면 0을 넣는다. ?:
 
             NavHostFragment.findNavController(this).navigate(action)
             // = findNavController().navigate(GameFragmentDirections.actionTitleToGame())
@@ -155,10 +164,11 @@ class GameFragment : Fragment() {
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        binding.wordText.text = gameViewModel.word
+//        binding.wordText.text = gameViewModel.word
+        binding.wordText.text = gameViewModel.word.value // mutableLiveData value로 접근
     }
 
     private fun updateScoreText() {
-        binding.scoreText.text = gameViewModel.score.toString()
+        binding.scoreText.text = gameViewModel.score.value.toString()
     }
 }
