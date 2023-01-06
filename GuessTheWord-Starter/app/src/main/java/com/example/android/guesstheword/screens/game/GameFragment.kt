@@ -17,16 +17,20 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import kotlinx.android.synthetic.main.game_fragment.*
 
 /**
  * Fragment where the game is played
@@ -60,12 +64,17 @@ class GameFragment : Fragment() {
         // 바인딩 생성 후 뷰모델 생성
         // 뷰 모델 생성 시 ViewModelProvider() 로 생성해야 뷰 모델이 재생성 되지 않는다.
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
-        gameViewModel.word.observe(
-            viewLifecycleOwner,
-            Observer { word -> binding.wordText.text = word })
-        gameViewModel.score.observe(
-            viewLifecycleOwner,
-            Observer { score -> binding.scoreText.text = score.toString() })
+
+        // viewmodel을 데이터 바인딩
+        binding.gameViewModel = gameViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
+//        gameViewModel.word.observe(
+//            viewLifecycleOwner,
+//            Observer { word -> binding.wordText.text = word })
+//        gameViewModel.score.observe(
+//            viewLifecycleOwner,
+//            Observer { score -> binding.scoreText.text = score.toString() })
 
         gameViewModel.isFinish.observe(
             viewLifecycleOwner,
@@ -82,13 +91,20 @@ class GameFragment : Fragment() {
             }
         )
 
+//        gameViewModel.count.observe(
+//            viewLifecycleOwner,
+//            Observer {
+//                count -> binding.timerText.text = count.toString()
+//            }
+//        )
+
 //
 //        resetList()
 //        nextWord()
 
         binding.correctButton.setOnClickListener {
 //            onCorrect()
-            gameViewModel.onCorrect()
+//            gameViewModel.onCorrect()
 //            updateScoreText()
 //            updateWordText()
         }
