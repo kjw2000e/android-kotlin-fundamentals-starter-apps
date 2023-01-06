@@ -24,15 +24,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
-import com.example.android.guesstheword.screens.score.ScoreFragment
-import com.example.android.guesstheword.screens.score.ScoreFragmentDirections
-import com.example.android.guesstheword.screens.title.TitleFragmentDirections
-import kotlinx.android.synthetic.main.score_fragment.*
 
 /**
  * Fragment where the game is played
@@ -73,6 +67,21 @@ class GameFragment : Fragment() {
             viewLifecycleOwner,
             Observer { score -> binding.scoreText.text = score.toString() })
 
+        gameViewModel.isFinish.observe(
+            viewLifecycleOwner,
+            Observer { isFinish ->
+                if (isFinish) {
+                    // 인텐트 action 보내듯이 값 보낼 때 셋팅 해주면된다.
+                    val action = GameFragmentDirections.actionGameToScore()
+//            action.score = gameViewModel.score
+                    action.score = gameViewModel.score.value ?: 0
+                    // gameViewModel.score.value이 null 이면 0을 넣는다. ?:
+                    NavHostFragment.findNavController(this).navigate(action)
+                    gameViewModel.completeFinish()
+                }
+            }
+        )
+
 //
 //        resetList()
 //        nextWord()
@@ -90,14 +99,7 @@ class GameFragment : Fragment() {
         }
 
         binding.endGameButton.setOnClickListener {
-            // 인텐트 action 보내듯이 값 보낼 때 셋팅 해주면된다.
-
-            val action = GameFragmentDirections.actionGameToScore()
-//            action.score = gameViewModel.score
-            action.score = gameViewModel.score.value?: 0  // gameViewModel.score.value이 null 이면 0을 넣는다. ?:
-
-            NavHostFragment.findNavController(this).navigate(action)
-            // = findNavController().navigate(GameFragmentDirections.actionTitleToGame())
+            gameViewModel.onFinished()
         }
 
         updateScoreText()
