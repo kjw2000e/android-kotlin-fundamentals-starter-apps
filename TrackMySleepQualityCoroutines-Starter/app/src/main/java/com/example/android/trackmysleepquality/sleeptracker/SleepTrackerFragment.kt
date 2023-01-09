@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.android.trackmysleepquality.R
+import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
 
 /**
@@ -43,6 +45,20 @@ class SleepTrackerFragment : Fragment() {
         // Get a reference to the binding object and inflate the fragment views.
         val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_sleep_tracker, container, false)
+
+
+        // requireNotNull() : 해당 값이 null 이면 throw IllegalAargumentException 한다.
+        val application = requireNotNull(this.activity).application
+        val dateSource = SleepDatabase.getInstance(application).sleepDatabaseDao
+
+        val viewModelFactory = SleepTrackerViewModelFactory(dateSource, application)
+        val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+
+
+        // 현재 액티비티(프래그먼트)를 바인딩의 lifecycle 소유자로 설정
+        binding.lifecycleOwner = this
+        // 뷰모델을 바인딩 변수로 할당
+        binding.sleepTrackViewModel = sleepTrackerViewModel
 
         return binding.root
     }

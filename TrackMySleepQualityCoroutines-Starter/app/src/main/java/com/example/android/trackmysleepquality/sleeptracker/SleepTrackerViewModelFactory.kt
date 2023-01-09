@@ -31,6 +31,8 @@ class SleepTrackerViewModelFactory(
         private val application: Application) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        // 이 코드는 대부분 boilerplate code이므로 다른곳에서 재사용 가능하다.
+        // boilerplate code : 불필요하고 복잡하고 반복적인 일들을 하지 않도록 도와주는 것이 보일러 플레이트
         if (modelClass.isAssignableFrom(SleepTrackerViewModel::class.java)) {
             return SleepTrackerViewModel(dataSource, application) as T
         }

@@ -16,3 +16,22 @@
 
 package com.example.android.trackmysleepquality.database
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+// table 정의
+// entity 인스턴스는 해당 테이블의 행을 나타냄
+// entity 는 data class 로 표현
+@Entity(tableName = "daily_sleep_quality_table")
+data class SleepNight (
+    @PrimaryKey(autoGenerate = true)
+    var nitghtId: Long = 0L,
+    @ColumnInfo(name = "start_time_milli")
+    val startTimeMilli: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "end_time_milli")
+    var endTimeMilli: Long = startTimeMilli,
+    @ColumnInfo(name = "quality_rating")
+    var sleepQuality: Int = -1
+)
+
