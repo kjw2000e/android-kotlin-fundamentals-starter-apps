@@ -18,6 +18,7 @@ package com.example.android.trackmysleepquality.sleeptracker
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
@@ -43,6 +44,10 @@ class SleepTrackerViewModel(
         val nightsString = Transformations.map(nights) { nights ->
                 formatNights(nights, application.resources)
         }
+
+        private var _isDone = MutableLiveData<SleepNight>()
+        val isDone: LiveData<SleepNight>
+                get() = _isDone
 
         // 코루틴을 메인 스레드에서 실행한다. 결과값이 UI에 영향을 미치기 때문
         // 오래 걸리는 작업을 하는 suspend function을 호출한다, 결과를 기다리는 동안 UI thread를 block 하지 않도록
@@ -84,6 +89,8 @@ class SleepTrackerViewModel(
                         val oldNight = tonight.value ?: return@launch
                         oldNight.endTimeMilli = System.currentTimeMillis()
                         update(oldNight)
+                        // end time 채운 night 데이터
+                        _isDone.value = oldNight
                 }
         }
 
@@ -106,6 +113,11 @@ class SleepTrackerViewModel(
 
         private suspend fun clear() {
                 database.clear()
+        }
+
+        // 종료 후 navigate to sleep tracker quality
+        fun doneNavigating() {
+                _isDone.value = null
         }
 }
 
