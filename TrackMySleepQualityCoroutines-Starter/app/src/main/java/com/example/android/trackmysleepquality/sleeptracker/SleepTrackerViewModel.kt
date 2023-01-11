@@ -17,6 +17,7 @@
 package com.example.android.trackmysleepquality.sleeptracker
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,9 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
 import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.formatNights
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for SleepTrackerFragment.
@@ -37,9 +36,9 @@ class SleepTrackerViewModel(
         application: Application) : AndroidViewModel(application) {
                 // context 사용하려면 AndroidViewModel을 사용해야한다.
 
-        private var tonight = MutableLiveData<SleepNight?>()
+        private var tonight = MutableLiveData<SleepNight?>() // 현재 SleepNight정보
 
-        private val nights = database.getAllNights()
+        private val nights = database.getAllNights() // 모든 SleepNight
 
         val nightsString = Transformations.map(nights) { nights ->
                 formatNights(nights, application.resources)
@@ -48,6 +47,25 @@ class SleepTrackerViewModel(
         private var _isDone = MutableLiveData<SleepNight>()
         val isDone: LiveData<SleepNight>
                 get() = _isDone
+
+        // button 상태값 변수
+        val startBtnVisible = Transformations.map(tonight) {
+                it == null
+        }
+
+        val stopBtnVisible = Transformations.map(tonight) {
+                it != null
+        }
+
+        val clearBtnVisible = Transformations.map(nights) {
+                // 하나라도 item있으면
+                it?.isNotEmpty()
+        }
+
+        // snackbar
+        private val _isCleared = MutableLiveData<Boolean>()
+        val isCleared : LiveData<Boolean>
+                get() = _isCleared
 
         // 코루틴을 메인 스레드에서 실행한다. 결과값이 UI에 영향을 미치기 때문
         // 오래 걸리는 작업을 하는 suspend function을 호출한다, 결과를 기다리는 동안 UI thread를 block 하지 않도록
@@ -76,15 +94,17 @@ class SleepTrackerViewModel(
         // start btn onclick event
         // new instance insert to table
         fun onStartTracking() {
-                viewModelScope.launch {
+                viewModelScope.launch() {
+                        Log.e("kjw333", "onStartTracking, thread : " + Thread.currentThread());
                         val newNight = SleepNight()
-                        insert(newNight)
+                        insert(newNight) // suspend 함수 호출
                         tonight.value = getTonightFromDatabase()
                 }
         }
 
         fun onStopTracking() {
                 viewModelScope.launch {
+                        Log.e("kjw333", "onStopTracking, thread : " + Thread.currentThread());
                         // return@launch  return@label 구문은 여러 중첩 함수 중에서 이 문이 반환하는 함수를 지정
                         val oldNight = tonight.value ?: return@launch
                         oldNight.endTimeMilli = System.currentTimeMillis()
@@ -97,6 +117,7 @@ class SleepTrackerViewModel(
         fun onClear() {
                 viewModelScope.launch {
                         clear()
+                        _isCleared.value = true
                         tonight.value = null
                 }
         }
@@ -118,6 +139,10 @@ class SleepTrackerViewModel(
         // 종료 후 navigate to sleep tracker quality
         fun doneNavigating() {
                 _isDone.value = null
+        }
+
+        fun doneSnackBar() {
+                _isCleared.value = false
         }
 }
 

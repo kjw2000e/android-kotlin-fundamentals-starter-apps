@@ -15,3 +15,41 @@
  */
 
 package com.example.android.trackmysleepquality.sleepquality
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.android.trackmysleepquality.database.SleepDatabaseDao
+import kotlinx.coroutines.launch
+
+class SleepQualityViewModel(
+    val key: Long,
+    val dao: SleepDatabaseDao
+) : ViewModel() {
+    // sleep quality fragment 로 돌아가기 위한 변수
+    private val _isUpdated = MutableLiveData<Boolean?>()
+    val isUpdated: LiveData<Boolean?>
+        get() = _isUpdated
+
+    init {
+
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+    }
+
+    fun onSetSleepQuality(quality: Int) { // click handler
+        viewModelScope.launch {
+            val tonight = dao.get(key) ?: return@launch
+            tonight.sleepQuality = quality
+            dao.update(tonight)
+            _isUpdated.value = true
+        }
+    }
+
+    fun onDoneNavigate() {
+        _isUpdated.value = null
+    }
+}
