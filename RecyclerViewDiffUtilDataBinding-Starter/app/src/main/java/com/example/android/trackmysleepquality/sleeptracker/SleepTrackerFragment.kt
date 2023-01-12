@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
@@ -74,7 +75,12 @@ class SleepTrackerFragment : Fragment() {
 
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.data = it
+//                adapter.data = it
+
+                // 어댑터에 data 전송
+                // submitList list update를 시킨다다
+                // submitList가 호출되면 ListAdapter는 이전 목록과 새목록을 비교하고 추가된 항목을 감지한다
+               adapter.submitList(it)
             }
         })
 
