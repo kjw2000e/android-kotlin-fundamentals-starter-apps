@@ -57,6 +57,8 @@ class SleepTrackerFragment : Fragment() {
         val viewModelFactory = SleepTrackerViewModelFactory(dateSource, application)
         val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
 
+        val adapter = SleepNightAdapter()
+
 
         // 현재 액티비티(프래그먼트)를 바인딩의 lifecycle 소유자로 설정
         binding.lifecycleOwner = this
@@ -78,6 +80,14 @@ class SleepTrackerFragment : Fragment() {
             if (it) {
                 Snackbar.make(requireActivity().findViewById(android.R.id.content), getString(R.string.cleared_message), Snackbar.LENGTH_SHORT).show()
                 sleepTrackerViewModel.doneSnackBar()
+            }
+        })
+
+        // recyclerview set adapter
+        binding.sleepList.adapter = adapter
+        sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.data = it
             }
         })
 
