@@ -79,7 +79,7 @@ class SleepTrackerFragment : Fragment() {
 
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.submitList(it)
+                adapter.addHeaderAndSubmitList(it)
             }
         })
 
@@ -133,6 +133,17 @@ class SleepTrackerFragment : Fragment() {
         })
 
         val manager = GridLayoutManager(activity, 3)
+        // 람다로 표현할 수 없는 익명함수는 object로 정의한다.
+        // spanSizeLookup : 해당 위치의 span 설정
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return when(position) {
+                    0 -> 3 // 0번 포지션이 3개의 영역만큼 가진다는 의미
+                    else -> 1 // 나머지 포지션은 각자 1 영역
+                }
+            }
+        }
+
         binding.sleepList.layoutManager = manager
 
         return binding.root
