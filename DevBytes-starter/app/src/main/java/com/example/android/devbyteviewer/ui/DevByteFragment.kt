@@ -27,6 +27,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -92,6 +93,10 @@ class DevByteFragment : Fragment() {
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        // 1. 뷰 생성(바인딩 inflate)
+        // 2. 바인딩 lifecycleOwner 설정
+        // 3. 바인딩 data에 g할당
+
         val binding: FragmentDevByteBinding = DataBindingUtil.inflate(
                 inflater,
                 R.layout.fragment_dev_byte,
@@ -118,6 +123,11 @@ class DevByteFragment : Fragment() {
 
             startActivity(intent)
         })
+
+//        binding.recyclerView.apply {
+//            layoutManager = LinearLayoutManager(context)
+//            adapter = viewModelAdapter
+//        }
 
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
